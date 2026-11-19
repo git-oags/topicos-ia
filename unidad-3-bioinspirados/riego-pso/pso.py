@@ -28,3 +28,7 @@ print("costo de la mejor particula al inicio:", round(optimizador.cost_history[0
 print("mejor costo al final:", round(mejor_costo, 3))
 for k in range(NUM_SENSORES):
     print("sensor", k + 1, ":", round(float(mejor_posicion[2 * k]), 2), "km,", round(float(mejor_posicion[2 * k + 1]), 2), "km")
+
+import graficas
+graficas.mapa(mejor_posicion, "fig_mapa_sensores.png")
+graficas.convergencia(optimizador.cost_history, "fig_convergencia.png")
