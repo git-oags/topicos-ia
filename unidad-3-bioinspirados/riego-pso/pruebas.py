@@ -134,7 +134,6 @@ def prueba5():
     aptitud.preparar(datos)  # regresa a los datos originales
 
 
-   
 if __name__ == "__main__":
     prueba1()
     prueba2()

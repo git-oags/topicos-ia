@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-datos = pd.read_csv("parcelas_guasave.csv")
+datos = pd.read_csv("entrada/parcelas_guasave.csv")
 datos.columns = ["humedad", "cultivo", "elevacion", "salinidad", "temperatura", "lat", "lon"]
 
 # pasa de latitud y longitud a kilometros, origen en la esquina inferior izquierda

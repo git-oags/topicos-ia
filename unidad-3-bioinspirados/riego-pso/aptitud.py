@@ -19,7 +19,7 @@ IMPORTANCIA = list(datos["importancia"])
 CULTIVO = list(datos["cultivo"])
 ELEVACION = list(datos["elevacion"])
 SUMA_IMPORTANCIA = sum(IMPORTANCIA)
-DESV_ELEVACION = datos["elevacion"].std(ddof=0)    
+DESV_ELEVACION = datos["elevacion"].std(ddof=0)
 
 def separar_sensores(posicion):
     # convierte [x1, y1, x2, y2, ...] en [(x1, y1), (x2, y2), ...]
@@ -82,19 +82,6 @@ def costo(posicion):
     cobertura, mezcla, desnivel = desglose(posicion)
     return cobertura + PESO_CULTIVO * mezcla + PESO_ELEVACION * desnivel
 
-if __name__ == "__main__":
-    # prueba con 2 sensores puestos a mano
-    prueba = [2.5, 5, 7.5, 5]
-    sensores = separar_sensores(prueba)
-    asignacion, distancias = asignar(sensores)
-    print("sensores:", sensores)
-    print("primeras 5 asignaciones:", asignacion[:5])
-    print("primeras 5 distancias:", [round(d, 3) for d in distancias[:5]])
-    print("parcelas por sensor:", [asignacion.count(k) for k in range(len(sensores))])
-    print("distancia promedio:", round(sum(distancias) / len(distancias), 3))
-    print(datos[["humedad", "salinidad", "importancia"]].head())
-    print("costo con 1 sensor:", round(costo([5, 5]), 3), desglose([5, 5]))
-    print("costo con 2 sensores:", round(costo([2.5, 5, 7.5, 5]), 3), desglose([2.5, 5, 7.5, 5]))
 
 def preparar(tabla):
     # vuelve a calcular las listas con otra tabla de parcelas (para probar otros terrenos)
@@ -111,3 +98,18 @@ def preparar(tabla):
     ELEVACION = list(tabla["elevacion"])
     SUMA_IMPORTANCIA = sum(IMPORTANCIA)
     DESV_ELEVACION = tabla["elevacion"].std(ddof=0)
+
+
+if __name__ == "__main__":
+    # prueba con 2 sensores puestos a mano
+    prueba = [2.5, 5, 7.5, 5]
+    sensores = separar_sensores(prueba)
+    asignacion, distancias = asignar(sensores)
+    print("sensores:", sensores)
+    print("primeras 5 asignaciones:", asignacion[:5])
+    print("primeras 5 distancias:", [round(d, 3) for d in distancias[:5]])
+    print("parcelas por sensor:", [asignacion.count(k) for k in range(len(sensores))])
+    print("distancia promedio:", round(sum(distancias) / len(distancias), 3))
+    print(datos[["humedad", "salinidad", "importancia"]].head())
+    print("costo con 1 sensor:", round(costo([5, 5]), 3), desglose([5, 5]))
+    print("costo con 2 sensores:", round(costo([2.5, 5, 7.5, 5]), 3), desglose([2.5, 5, 7.5, 5]))
