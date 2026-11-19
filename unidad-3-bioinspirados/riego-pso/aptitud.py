@@ -3,6 +3,9 @@ from datos import datos
 
 NUM_SENSORES = 8
 
+PESO_CULTIVO = 2
+PESO_ELEVACION = 1
+
 # importancia de cada parcela: las salinas y las secas necesitan mas vigilancia
 sal = datos["salinidad"]
 hum = datos["humedad"]
@@ -36,15 +39,35 @@ def asignar(sensores):
         distancias.append(menor)
     return asignacion, distancias
 
-def costo(posicion):
-    # cobertura: promedio de distancia al cuadrado, pesado por la importancia de la parcela
+def desglose(posicion):
+    # regresa las tres partes del costo por separado
     sensores = separar_sensores(posicion)
     asignacion, distancias = asignar(sensores)
+
+    # cobertura: distancia al cuadrado pesada por importancia
     suma = 0
     for i in range(len(datos)):
         suma = suma + datos["importancia"][i] * distancias[i] ** 2
     cobertura = suma / datos["importancia"].sum()
-    return cobertura
+
+    # mezcla de cultivos y desnivel dentro de la zona de cada sensor
+    revueltas = 0
+    desnivel = 0
+    for k in range(len(sensores)):
+        zona = datos[[a == k for a in asignacion]]
+        if len(zona) == 0:
+            continue
+        revueltas = revueltas + len(zona) - zona["cultivo"].value_counts().max()
+        desnivel = desnivel + len(zona) * zona["elevacion"].std(ddof=0)
+    mezcla = revueltas / len(datos)
+    desnivel = desnivel / len(datos) / datos["elevacion"].std(ddof=0)
+
+    return cobertura, mezcla, desnivel
+
+
+def costo(posicion):
+    cobertura, mezcla, desnivel = desglose(posicion)
+    return cobertura + PESO_CULTIVO * mezcla + PESO_ELEVACION * desnivel
 
 if __name__ == "__main__":
     # prueba con 2 sensores puestos a mano
@@ -57,6 +80,5 @@ if __name__ == "__main__":
     print("parcelas por sensor:", [asignacion.count(k) for k in range(len(sensores))])
     print("distancia promedio:", round(sum(distancias) / len(distancias), 3))
     print(datos[["humedad", "salinidad", "importancia"]].head())
-    print("costo con 1 sensor en el centro:", round(costo([5, 5]), 3))
-    print("costo con 2 sensores:", round(costo([2.5, 5, 7.5, 5]), 3))
-    print("costo con 4 sensores:", round(costo([2.5, 2.5, 7.5, 2.5, 2.5, 8, 7.5, 8]), 3))    
+    print("costo con 1 sensor:", round(costo([5, 5]), 3), desglose([5, 5]))
+    print("costo con 2 sensores:", round(costo([2.5, 5, 7.5, 5]), 3), desglose([2.5, 5, 7.5, 5]))
