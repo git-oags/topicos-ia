@@ -76,7 +76,6 @@ def desglose(posicion):
         desnivel = desnivel + n * math.sqrt(varianza)
     mezcla = revueltas / len(X)
     desnivel = desnivel / len(X) / DESV_ELEVACION
-
     return cobertura, mezcla, desnivel
 
 def costo(posicion):
@@ -96,3 +95,19 @@ if __name__ == "__main__":
     print(datos[["humedad", "salinidad", "importancia"]].head())
     print("costo con 1 sensor:", round(costo([5, 5]), 3), desglose([5, 5]))
     print("costo con 2 sensores:", round(costo([2.5, 5, 7.5, 5]), 3), desglose([2.5, 5, 7.5, 5]))
+
+def preparar(tabla):
+    # vuelve a calcular las listas con otra tabla de parcelas (para probar otros terrenos)
+    global X, Y, IMPORTANCIA, CULTIVO, ELEVACION, SUMA_IMPORTANCIA, DESV_ELEVACION
+    sal = tabla["salinidad"]
+    hum = tabla["humedad"]
+    importancia = (1
+        + (sal - sal.min()) / (sal.max() - sal.min())
+        + (hum.max() - hum) / (hum.max() - hum.min()))
+    X = list(tabla["x"])
+    Y = list(tabla["y"])
+    IMPORTANCIA = list(importancia)
+    CULTIVO = list(tabla["cultivo"])
+    ELEVACION = list(tabla["elevacion"])
+    SUMA_IMPORTANCIA = sum(IMPORTANCIA)
+    DESV_ELEVACION = tabla["elevacion"].std(ddof=0)
