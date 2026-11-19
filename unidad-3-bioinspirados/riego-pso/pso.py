@@ -35,7 +35,12 @@ def correr_pso(num_sensores=NUM_SENSORES, semilla=1, iteraciones=100, particulas
 
 if __name__ == "__main__":
     import graficas
-    posicion, mejor, historial = correr_pso()
+    # configuracion final: topologia local y la mejor de 3 semillas (ver pruebas 2 y 3)
+    posicion, mejor, historial = None, None, None
+    for semilla in range(1, 4):
+        p, c, h = correr_pso(semilla=semilla, topologia="local")
+        if mejor is None or c < mejor:
+            posicion, mejor, historial = p, c, h
     cobertura, mezcla, desnivel = desglose(posicion)
     print("costo al inicio:", round(historial[0], 3))
     print("costo al final:", round(mejor, 3))

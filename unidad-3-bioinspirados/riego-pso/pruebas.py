@@ -1,3 +1,6 @@
+import math
+import graficas
+import aptitud
 import numpy as np
 from datos import datos
 from aptitud import costo, desglose
@@ -60,8 +63,81 @@ def prueba3():
         print(particulas, "particulas,", topologia, ":", [round(float(c), 3) for c in costos],
               " promedio:", round(float(np.mean(costos)), 3))
 
+def mejor_de_3(num_sensores=8):
+    # multiarranque: 3 semillas con topologia local, se queda con la mejor
+    mejor_posicion = None
+    mejor_costo = math.inf
+    for semilla in range(1, 4):
+        posicion, costo_final, historial = correr_pso(num_sensores=num_sensores, semilla=semilla, topologia="local")
+        if costo_final < mejor_costo:
+            mejor_costo = costo_final
+            mejor_posicion = posicion
+    return mejor_posicion, mejor_costo
 
+
+def prueba4():
+    print()
+    print("PRUEBA 4: numero de sensores (mejor de 3 semillas, topologia local)")
+    numeros = [4, 6, 8, 10, 12]
+    costos = []
+    for n in numeros:
+        posicion, mejor = mejor_de_3(n)
+        costos.append(mejor)
+        print(n, "sensores:", round(float(mejor), 3), [round(float(v), 3) for v in desglose(posicion)])
+    graficas.costo_por_sensores(numeros, costos, "fig_sensores.png")
+
+
+def prueba5():
+    print()
+    print("PRUEBA 5: terrenos con estructura (8 sensores, mejor de 3 semillas, topologia local)")
+    terrenos = {}
+    terrenos["original"] = datos.copy()
+
+    # cultivos sembrados en tres franjas verticales
+    t = datos.copy()
+    cultivos = []
+    for x in t["x"]:
+        if x < ANCHO / 3:
+            cultivos.append("Maíz")
+        elif x < 2 * ANCHO / 3:
+            cultivos.append("Chile")
+        else:
+            cultivos.append("Tomate")
+    t["cultivo"] = cultivos
+    terrenos["cultivos en franjas"] = t
+
+    # el terreno sube de 10 m al sur a 50 m al norte
+    t = datos.copy()
+    t["elevacion"] = 10 + 40 * t["y"] / ALTO
+    terrenos["pendiente sur-norte"] = t
+
+    # parche salino de 2.5 km de radio alrededor de (7.5, 2.5)
+    t = datos.copy()
+    salinidad = []
+    for i in range(len(t)):
+        d = math.sqrt((t["x"][i] - 7.5) ** 2 + (t["y"][i] - 2.5) ** 2)
+        if d < 2.5:
+            salinidad.append(3.9)
+        else:
+            salinidad.append(0.6)
+    t["salinidad"] = salinidad
+    terrenos["parche salino"] = t
+
+    colores = {"original": None, "cultivos en franjas": None,
+               "pendiente sur-norte": "elevacion", "parche salino": "salinidad"}
+    for nombre in terrenos:
+        aptitud.preparar(terrenos[nombre])
+        posicion, mejor = mejor_de_3()
+        print(nombre, ":", round(float(mejor), 3), [round(float(v), 3) for v in desglose(posicion)])
+        archivo = "fig_terreno_" + nombre.replace(" ", "_") + ".png"
+        graficas.mapa(posicion, archivo, tabla=terrenos[nombre], titulo="Terreno: " + nombre, color=colores[nombre])
+    aptitud.preparar(datos)  # regresa a los datos originales
+
+
+   
 if __name__ == "__main__":
-    #prueba1()
-    #prueba2()
+    prueba1()
+    prueba2()
     prueba3()
+    prueba4()
+    prueba5()

@@ -1,0 +1,33 @@
+PRUEBA 1: PSO contra cuadricula y azar (8 sensores)
+al azar, promedio de 30: 7.727  mejor: 5.497  peor: 13.137
+cuadricula 4x2: 5.293 [3.286, 0.53, 0.947]
+pso: 4.164 [2.101, 0.55, 0.963]
+mejora del pso contra la cuadricula: 21.3 %
+mejora del pso contra el azar: 46.1 %
+
+PRUEBA 2: 5 semillas con 300 iteraciones
+semilla 1  it 100: 4.164  it 200: 4.115  it 300: 4.112  ultima mejora en la iteracion 253
+semilla 2  it 100: 4.442  it 200: 4.442  it 300: 4.427  ultima mejora en la iteracion 249
+semilla 3  it 100: 4.735  it 200: 4.461  it 300: 4.461  ultima mejora en la iteracion 191
+semilla 4  it 100: 4.535  it 200: 4.535  it 300: 4.535  ultima mejora en la iteracion 63
+semilla 5  it 100: 4.781  it 200: 4.722  it 300: 4.722  ultima mejora en la iteracion 174
+promedio: 4.451  mejor: 4.112  peor: 4.722
+
+PRUEBA 3: tamano y topologia del enjambre (100 iteraciones, 5 semillas)
+30 particulas, global : [4.164, 4.442, 4.735, 4.535, 4.781]  promedio: 4.531
+60 particulas, global : [4.26, 4.595, 4.456, 4.301, 4.425]  promedio: 4.407
+120 particulas, global : [4.506, 4.33, 4.535, 4.209, 4.611]  promedio: 4.438
+30 particulas, local : [4.041, 4.373, 4.408, 4.654, 4.57]  promedio: 4.409
+
+PRUEBA 4: numero de sensores (mejor de 3 semillas, topologia local)
+4 sensores: 6.44 [4.307, 0.57, 0.993]
+6 sensores: 5.54 [3.473, 0.56, 0.947]
+8 sensores: 4.041 [2.04, 0.52, 0.961]
+10 sensores: 3.88 [1.833, 0.54, 0.967]
+12 sensores: 3.711 [1.78, 0.5, 0.931]
+
+PRUEBA 5: terrenos con estructura (8 sensores, mejor de 3 semillas, topologia local)
+original : 4.041 [2.04, 0.52, 0.961]
+cultivos en franjas : 3.558 [2.308, 0.14, 0.97]
+pendiente sur-norte : 3.546 [2.142, 0.56, 0.284]
+parche salino : 4.297 [2.272, 0.52, 0.985]
