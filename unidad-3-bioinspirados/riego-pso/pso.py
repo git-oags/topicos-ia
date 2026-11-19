@@ -1,5 +1,5 @@
 import numpy as np
-from pyswarms.single import GlobalBestPSO
+from pyswarms.single import GlobalBestPSO, LocalBestPSO
 from datos import datos
 from aptitud import costo, desglose, NUM_SENSORES
 
@@ -15,17 +15,23 @@ def costo_enjambre(enjambre):
     return np.array(costos)
 
 
-def correr_pso(num_sensores=NUM_SENSORES, semilla=1, iteraciones=100, particulas=30):
+def correr_pso(num_sensores=NUM_SENSORES, semilla=1, iteraciones=100, particulas=30, topologia="global"):
     # corre el pso y regresa la mejor posicion, su costo y el historial
     minimos = np.zeros(2 * num_sensores)
     maximos = np.array([ANCHO, ALTO] * num_sensores)
     np.random.seed(semilla)
     opciones = {"c1": 1.49445, "c2": 1.49445, "w": 0.729}
-    optimizador = GlobalBestPSO(n_particles=particulas, dimensions=2 * num_sensores,
-                                options=opciones, bounds=(minimos, maximos))
+    if topologia == "global":
+        optimizador = GlobalBestPSO(n_particles=particulas, dimensions=2 * num_sensores,
+                                    options=opciones, bounds=(minimos, maximos))
+    else:
+        # cada particula solo ve a sus 4 vecinas mas cercanas (distancia euclidiana, p=2)
+        opciones["k"] = 4
+        opciones["p"] = 2
+        optimizador = LocalBestPSO(n_particles=particulas, dimensions=2 * num_sensores,
+                                   options=opciones, bounds=(minimos, maximos))
     mejor_costo, mejor_posicion = optimizador.optimize(costo_enjambre, iters=iteraciones, verbose=False)
     return mejor_posicion, mejor_costo, optimizador.cost_history
-
 
 if __name__ == "__main__":
     import graficas

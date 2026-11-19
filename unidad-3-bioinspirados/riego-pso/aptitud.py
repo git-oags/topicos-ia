@@ -12,6 +12,15 @@ hum = datos["humedad"]
 datos["importancia"] = (1
     + (sal - sal.min()) / (sal.max() - sal.min())
     + (hum.max() - hum) / (hum.max() - hum.min()))
+# columnas como listas: leer de una lista en un ciclo es mucho mas rapido que de pandas
+X = list(datos["x"])
+Y = list(datos["y"])
+IMPORTANCIA = list(datos["importancia"])
+CULTIVO = list(datos["cultivo"])
+ELEVACION = list(datos["elevacion"])
+SUMA_IMPORTANCIA = sum(IMPORTANCIA)
+DESV_ELEVACION = datos["elevacion"].std(ddof=0)    
+
 def separar_sensores(posicion):
     # convierte [x1, y1, x2, y2, ...] en [(x1, y1), (x2, y2), ...]
     sensores = []
@@ -19,19 +28,16 @@ def separar_sensores(posicion):
         sensores.append((posicion[i], posicion[i + 1]))
     return sensores
 
-
 def asignar(sensores):
     # para cada parcela regresa el sensor mas cercano y la distancia a el
     asignacion = []
     distancias = []
-    for i in range(len(datos)):
-        px = datos["x"][i]
-        py = datos["y"][i]
+    for i in range(len(X)):
         mejor = 0
         menor = math.inf
         for k in range(len(sensores)):
             sx, sy = sensores[k]
-            d = math.sqrt((px - sx) ** 2 + (py - sy) ** 2)
+            d = math.sqrt((X[i] - sx) ** 2 + (Y[i] - sy) ** 2)
             if d < menor:
                 menor = d
                 mejor = k
@@ -46,24 +52,32 @@ def desglose(posicion):
 
     # cobertura: distancia al cuadrado pesada por importancia
     suma = 0
-    for i in range(len(datos)):
-        suma = suma + datos["importancia"][i] * distancias[i] ** 2
-    cobertura = suma / datos["importancia"].sum()
+    for i in range(len(X)):
+        suma = suma + IMPORTANCIA[i] * distancias[i] ** 2
+    cobertura = suma / SUMA_IMPORTANCIA
 
     # mezcla de cultivos y desnivel dentro de la zona de cada sensor
     revueltas = 0
     desnivel = 0
     for k in range(len(sensores)):
-        zona = datos[[a == k for a in asignacion]]
-        if len(zona) == 0:
+        cultivos = []
+        alturas = []
+        for i in range(len(X)):
+            if asignacion[i] == k:
+                cultivos.append(CULTIVO[i])
+                alturas.append(ELEVACION[i])
+        n = len(alturas)
+        if n == 0:
             continue
-        revueltas = revueltas + len(zona) - zona["cultivo"].value_counts().max()
-        desnivel = desnivel + len(zona) * zona["elevacion"].std(ddof=0)
-    mezcla = revueltas / len(datos)
-    desnivel = desnivel / len(datos) / datos["elevacion"].std(ddof=0)
+        mayoria = max(cultivos.count(c) for c in set(cultivos))
+        revueltas = revueltas + n - mayoria
+        media = sum(alturas) / n
+        varianza = sum((a - media) ** 2 for a in alturas) / n
+        desnivel = desnivel + n * math.sqrt(varianza)
+    mezcla = revueltas / len(X)
+    desnivel = desnivel / len(X) / DESV_ELEVACION
 
     return cobertura, mezcla, desnivel
-
 
 def costo(posicion):
     cobertura, mezcla, desnivel = desglose(posicion)
